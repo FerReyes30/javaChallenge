@@ -1,6 +1,9 @@
 package com.pluralsight.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +15,17 @@ public class Vehiculo {
     @Column(name="id_vehiculo")
     private Long id;
 
+    @Pattern(regexp = "^[A-Z]{3}\\d{3}$", message = "La patente debe tener un formato de 3 letras seguidas de 3 números")
     private String patenteIdentificadora;
+
     private String numeroChasis;
     private String numeroMotor;
     private String marca;
     private String color;
+
+    @Size(min = 4, max = 4, message = "El año debe contener los 4 numeros")
     private String añoFabricacion;
+
     private String statusVehiculo;
 
 

@@ -49,7 +49,8 @@ public class VehiculoServiceImpl implements VehiculoService {
         vehiculo.setAñoFabricacion(añoFabricacion);
         vehiculo.setStatusVehiculo(statusVehiculo);
 
-        return vehiculoRepository.save(vehiculo);
+        Vehiculo responseSave = vehiculoRepository.save(vehiculo);
+        return responseSave;
     }
 
     //Realiza la actualizacion de informacion del vehiculo

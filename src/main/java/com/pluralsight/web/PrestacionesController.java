@@ -8,6 +8,8 @@ import com.pluralsight.service.VehiculoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/prestaciones")
+@Validated
 public class PrestacionesController {
 
     @Autowired
@@ -27,7 +30,7 @@ public class PrestacionesController {
     @PostMapping()
     public Prestaciones altaPrestacion(@RequestBody Prestaciones prestacion){
         try{
-            return prestacionService.altaPrestacion(
+            Prestaciones responsePrestaciones = prestacionService.altaPrestacion(
                     prestacion.getFecha(),
                     prestacion.getTitulo(),
                     prestacion.getObservacion(),
@@ -35,6 +38,7 @@ public class PrestacionesController {
                     "Alta",
                     prestacion.getVehiculo()
             );
+            return ResponseEntity.ok(responsePrestaciones).getBody();
         }catch(Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error al cargar la prestación" + e);
@@ -105,5 +109,10 @@ public class PrestacionesController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
     }
 }

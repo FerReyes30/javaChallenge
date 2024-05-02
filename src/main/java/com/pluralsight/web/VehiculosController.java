@@ -5,9 +5,12 @@ import com.pluralsight.entity.Vehiculo;
 import com.pluralsight.exception.VehiculoNotFoundException;
 import com.pluralsight.service.PrestacionService;
 import com.pluralsight.service.VehiculoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -15,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/vehiculos")
+@Validated
 public class VehiculosController {
 
     @Autowired
@@ -25,18 +29,17 @@ public class VehiculosController {
     //---------------------------------- Vehiculo -------------------------------------
     //Endpoint Alta de vehiculo
     @PostMapping()
-    public Vehiculo altaVehiculo(@RequestBody Vehiculo vehiculo){
+    public Vehiculo altaVehiculo(@Valid @RequestBody Vehiculo vehiculo){
         try{
-
-            return vehiculoService.createVehiculo(
-                    vehiculo.getPatenteIdentificadora(),
-                    vehiculo.getNumeroChasis(),
-                    vehiculo.getNumeroMotor(),
-                    vehiculo.getMarca(),
-                    vehiculo.getColor(),
-                    vehiculo.getAñoFabricacion(),
-                    "Alta"
-                    );
+            Vehiculo response = vehiculoService.createVehiculo(
+                                                                vehiculo.getPatenteIdentificadora(),
+                                                                vehiculo.getNumeroChasis(),
+                                                                vehiculo.getNumeroMotor(),
+                                                                vehiculo.getMarca(),
+                                                                vehiculo.getColor(),
+                                                                vehiculo.getAñoFabricacion(),
+                                                                "Alta");
+            return ResponseEntity.ok(response).getBody();
 
         }catch(Exception e){
             e.printStackTrace();
@@ -85,4 +88,8 @@ public class VehiculosController {
         return new ResponseEntity<List<Vehiculo>>(list, HttpStatus.OK);
     }
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+    }
 }
